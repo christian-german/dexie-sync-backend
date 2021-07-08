@@ -2,23 +2,32 @@ package com.example.dexiesyncbackend.mapper;
 
 import com.example.dexiesyncbackend.dto.BookDTO;
 import com.example.dexiesyncbackend.entity.BookEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.ReportingPolicy;
+import com.example.dexiesyncbackend.repository.AuthorRepository;
+import com.example.dexiesyncbackend.repository.BookRepository;
+import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN)
-public interface BookMapper {
+public abstract class BookMapper {
+
+    @Autowired
+    private AuthorRepository authorRepository;
+
     @Mappings({
             @Mapping(target = "authorId", source = "authorEntity.id"),
     })
-    BookDTO toDto(BookEntity bookEntity);
+    public abstract BookDTO toDto(BookEntity bookEntity);
 
-    BookEntity toEntity(BookDTO bookDTO);
+    public abstract BookEntity toEntity(BookDTO bookDTO);
 
-    List<BookDTO> toDtos(List<BookEntity> bookEntityEntities);
+    public abstract List<BookDTO> toDtos(List<BookEntity> bookEntityEntities);
 
-    List<BookEntity> toEntities(List<BookDTO> bookDTOS);
+    public abstract List<BookEntity> toEntities(List<BookDTO> bookDTOS);
+
+    @BeforeMapping
+    protected void enrichEntityWithAuthorEntity(BookDTO bookDTO, @MappingTarget BookEntity bookEntity) {
+        bookEntity.setAuthorEntity(authorRepository.findById(bookDTO.getAuthorId()).get());
+    }
 }

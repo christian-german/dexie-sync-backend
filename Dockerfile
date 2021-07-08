@@ -13,5 +13,5 @@ WORKDIR /opt/application
 RUN groupadd spring && useradd -g spring spring
 USER spring:spring
 COPY --from=MAVEN_BUILD --chown=spring:spring /build/target/dexie-sync-backend-*-SNAPSHOT.jar dexie-sync-backend.jar
-ENTRYPOINT [ "java", "-jar", "/opt/application/occ-backend.jar" ]
+ENTRYPOINT [ "java", "-jar", "/opt/application/dexie-sync-backend.jar" ]
 
