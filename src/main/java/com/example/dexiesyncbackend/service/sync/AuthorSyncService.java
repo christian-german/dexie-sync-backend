@@ -20,8 +20,8 @@ public class AuthorSyncService {
     private final AuthorService authorService;
     private final AuthorMapper authorMapper;
 
-    public List<DatabaseChangeDTO> getAuthorsChanges(Long syncedRevision, Long clientIdentity) {
-        return authorService.findAllChanges(syncedRevision, clientIdentity)
+    public List<DatabaseChangeDTO> getAuthorsChanges(Long revisionFrom, Long revisionTo, Long clientIdentity) {
+        return authorService.findAllChanges(revisionFrom, revisionTo, clientIdentity)
                 .stream().map(this::convertToDatabaseChange).collect(Collectors.toList());
     }
 
@@ -30,6 +30,7 @@ public class AuthorSyncService {
                 DatabaseChangeTypeEnum.CREATE,
                 "authors",
                 authorEntity.getId().toString(),
-                authorMapper.toDto(authorEntity));
+                authorMapper.toDto(authorEntity),
+                authorEntity.getRevision());
     }
 }

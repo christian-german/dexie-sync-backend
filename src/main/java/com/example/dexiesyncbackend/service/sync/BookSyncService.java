@@ -18,8 +18,8 @@ public class BookSyncService {
     private final BookService bookService;
     private final BookMapper bookMapper;
 
-    public List<DatabaseChangeDTO> getBooksChanges(Long syncedRevision, Long clientIdentity) {
-        return bookService.findAllChanges(syncedRevision, clientIdentity)
+    public List<DatabaseChangeDTO> getBooksChanges(Long revisionFrom, Long revisionTo, Long clientIdentity) {
+        return bookService.findAllChanges(revisionFrom, revisionTo, clientIdentity)
                 .stream().map(this::convertToDatabaseChange).collect(Collectors.toList());
     }
 
@@ -28,6 +28,7 @@ public class BookSyncService {
                 DatabaseChangeTypeEnum.CREATE,
                 "books",
                 bookEntity.getId().toString(),
-                bookMapper.toDto(bookEntity));
+                bookMapper.toDto(bookEntity),
+                bookEntity.getRevision());
     }
 }

@@ -1,6 +1,6 @@
 package com.example.dexiesyncbackend.controller;
 
-import com.example.dexiesyncbackend.service.sync.SynchronizationService;
+import com.example.dexiesyncbackend.repository.SynchronizationRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/identity")
 public class ClientIdentityController {
 
-    private final SynchronizationService synchronizationService;
+    private final SynchronizationRepository synchronizationRepository;
 
     @GetMapping
     public Long getNextClientIdentity() {
-        return synchronizationService.getNewClientIdentity();
+        return synchronizationRepository.getNewClientIdentity();
     }
 }

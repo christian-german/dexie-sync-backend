@@ -13,5 +13,5 @@ public interface AuthorRepository extends PagingAndSortingRepository<AuthorEntit
     @Override
     List<AuthorEntity> findAll();
 
-    List<AuthorEntity> getAuthorByRevisionGreaterThanAndUpdatedByClientIdNot(Long revision, Long clientId);
+    List<AuthorEntity> getAuthorByRevisionGreaterThanAndRevisionLessThanEqualAndUpdatedByClientIdNot(Long revisionFrom, Long revisionTo, Long clientId);
 }
