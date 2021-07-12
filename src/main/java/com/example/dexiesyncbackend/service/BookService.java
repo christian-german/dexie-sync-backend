@@ -13,8 +13,8 @@ public class BookService {
 
     private final BookRepository bookRepository;
 
-    public List<BookEntity> findAllChanges(Long syncedRevision, Long clientIdentity) {
-        return bookRepository.getBookByRevisionGreaterThanAndUpdatedByClientIdNot(syncedRevision, clientIdentity);
+    public List<BookEntity> findAllChanges(Long revisionFrom, Long revisionTo, Long clientIdentity) {
+        return bookRepository.getBookByRevisionGreaterThanAndRevisionLessThanAndUpdatedByClientIdNot(revisionFrom, revisionTo, clientIdentity);
     }
 
     public List<BookEntity> findAll() {

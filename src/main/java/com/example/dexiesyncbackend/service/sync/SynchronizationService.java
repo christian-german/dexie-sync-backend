@@ -10,16 +10,13 @@ import com.example.dexiesyncbackend.mapper.AuthorMapper;
 import com.example.dexiesyncbackend.mapper.BookMapper;
 import com.example.dexiesyncbackend.repository.AuthorRepository;
 import com.example.dexiesyncbackend.repository.BookRepository;
+import com.example.dexiesyncbackend.repository.SynchronizationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,37 +25,64 @@ public class SynchronizationService {
     private final AuthorSyncService authorSyncService;
     private final BookSyncService bookSyncService;
     private final AuthorRepository authorRepository;
-    private final AuthorMapper authorMapper;
     private final BookRepository bookRepository;
+    private final SynchronizationRepository synchronizationRepository;
+    private final AuthorMapper authorMapper;
     private final BookMapper bookMapper;
     private final ObjectMapper objectMapper;
-    private final EntityManager entityManager;
+    @Value("${synchronization.max-changes}")
+    private int maxPartialChanges;
 
     public SyncResponseDTO synchronize(Long syncedRevision, Long clientIdentity, List<DatabaseChangeDTO> clientChanges) {
 
         // Generates a client identity if needed.
-        clientIdentity = (clientIdentity != null) ? clientIdentity : getNewClientIdentity();
+        clientIdentity = (clientIdentity != null) ? clientIdentity : synchronizationRepository.getNewClientIdentity();
 
         // Assumes syncedRevision is 0 if empty.
         syncedRevision = (syncedRevision != null) ? syncedRevision : 0L;
 
-        // First, apply changes to the server DB.
-        handleClientChanges(clientChanges, syncedRevision, clientIdentity);
+        // First, apply client's changes to the server DB.
+        handleClientChanges(clientChanges, clientIdentity);
+
+        // Fix the server revision to avoid concurrency problems.
+        Long fixedServerRevision = synchronizationRepository.getServerRevision();
 
         // Query DB to get server changes, starting from syncedRevision, and not updated by the requesting client.
-        List<DatabaseChangeDTO> serverChanges = getServerChanges(syncedRevision, clientIdentity);
+        //TODO: Limit the server changes size to maxChanges to avoid useless requests.
+        // to do this, take the syncedRevision, add the maxPartialChanges and request with between.
+        List<DatabaseChangeDTO> serverChanges = getServerChanges(syncedRevision, fixedServerRevision, clientIdentity);
 
-        return new SyncResponseDTO(
-                syncedRevision + serverChanges.size(),
-                serverChanges,
-                clientIdentity,
-                false,
-                true,
-                null
-        );
+        // Handle partial changes.
+        if (serverChanges.size() > maxPartialChanges) {
+            serverChanges.sort(Comparator.comparing(DatabaseChangeDTO::getRevision));
+            List<DatabaseChangeDTO> filteredServerChanges = serverChanges.subList(0, maxPartialChanges);
+            Long revision = filteredServerChanges.stream()
+                    .max(Comparator.comparing(DatabaseChangeDTO::getRevision))
+                    .orElseThrow(NoSuchElementException::new)
+                    .getRevision();
+
+            return new SyncResponseDTO(
+                    revision,
+                    filteredServerChanges,
+                    clientIdentity,
+                    true,
+                    true,
+                    null
+            );
+        } else {
+            return new SyncResponseDTO(
+                    fixedServerRevision,
+                    serverChanges,
+                    clientIdentity,
+                    false,
+                    true,
+                    null
+            );
+        }
     }
 
-    private void handleClientChanges(List<DatabaseChangeDTO> clientChanges, Long revision, Long clientIdentity) {
+    private void handleClientChanges(List<DatabaseChangeDTO> clientChanges, Long clientIdentity) {
+        // Each change gets a new revision.
         clientChanges.forEach(databaseChangeDTO -> {
             //TODO: Generify the DB target table.
             if ("authors".equals(databaseChangeDTO.getTable())) {
@@ -67,7 +91,6 @@ public class SynchronizationService {
                     case UPDATE:
                         AuthorDTO authorDTO = objectMapper.convertValue(databaseChangeDTO.getObj(), AuthorDTO.class);
                         AuthorEntity authorEntity = authorMapper.toEntity(authorDTO);
-                        authorEntity.setRevision(revision);
                         authorEntity.setUpdatedByClientId(clientIdentity);
                         authorRepository.save(authorEntity);
                         break;
@@ -81,7 +104,6 @@ public class SynchronizationService {
                     case UPDATE:
                         BookDTO bookDTO = objectMapper.convertValue(databaseChangeDTO.getObj(), BookDTO.class);
                         BookEntity bookEntity = bookMapper.toEntity(bookDTO);
-                        bookEntity.setRevision(revision);
                         bookEntity.setUpdatedByClientId(clientIdentity);
                         bookRepository.save(bookEntity);
                         break;
@@ -93,17 +115,12 @@ public class SynchronizationService {
         });
     }
 
-    private List<DatabaseChangeDTO> getServerChanges(Long syncedRevision, Long clientIdentity) {
+    private List<DatabaseChangeDTO> getServerChanges(Long revisionFrom, Long revisionTo, Long clientIdentity) {
         List<DatabaseChangeDTO> changes = new ArrayList<>();
 
-        changes.addAll(authorSyncService.getAuthorsChanges(syncedRevision, clientIdentity));
-        changes.addAll(bookSyncService.getBooksChanges(syncedRevision, clientIdentity));
+        changes.addAll(authorSyncService.getAuthorsChanges(revisionFrom, revisionTo, clientIdentity));
+        changes.addAll(bookSyncService.getBooksChanges(revisionFrom, revisionTo, clientIdentity));
 
         return changes;
-    }
-
-    public Long getNewClientIdentity() {
-        Query query = entityManager.createNativeQuery("SELECT nextval('client_identity_seq')");
-        return ((BigInteger) query.getSingleResult()).longValue();
     }
 }

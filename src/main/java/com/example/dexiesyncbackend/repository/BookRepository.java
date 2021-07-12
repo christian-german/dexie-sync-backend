@@ -13,5 +13,5 @@ public interface BookRepository extends PagingAndSortingRepository<BookEntity, U
     @Override
     List<BookEntity> findAll();
 
-    List<BookEntity> getBookByRevisionGreaterThanAndUpdatedByClientIdNot(Long revision, Long clientId);
+    List<BookEntity> getBookByRevisionGreaterThanAndRevisionLessThanAndUpdatedByClientIdNot(Long revisionFrom, Long revisionTo, Long clientId);
 }

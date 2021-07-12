@@ -13,8 +13,8 @@ public class AuthorService {
 
     private final AuthorRepository authorRepository;
 
-    public List<AuthorEntity> findAllChanges(Long syncedRevision, Long clientIdentity) {
-        return authorRepository.getAuthorByRevisionGreaterThanAndUpdatedByClientIdNot(syncedRevision, clientIdentity);
+    public List<AuthorEntity> findAllChanges(Long revisionFrom, Long revisionTo, Long clientIdentity) {
+        return authorRepository.getAuthorByRevisionGreaterThanAndRevisionLessThanEqualAndUpdatedByClientIdNot(revisionFrom, revisionTo, clientIdentity);
     }
 
     public List<AuthorEntity> findAll() {
