@@ -2,6 +2,69 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>dexie-sync-backend</artifactId>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>dexie-sync-backend</name>
+    <groupId>com.example</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <relativePath />
+        <version>2.5.2</version> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework.boot</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <groupId>org.springframework.boot</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>postgresql</artifactId>
+            <groupId>org.postgresql</groupId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <artifactId>flyway-core</artifactId>
+            <groupId>org.flywaydb</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>mapstruct</artifactId>
+            <groupId>org.mapstruct</groupId>
+            <version>1.4.2.Final</version>
+        </dependency>
+        <dependency>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <artifactId>lombok</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <optional>true</optional>
+            <version>1.18.12</version>
+        </dependency>
+        <dependency>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>1.15.3</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -44,65 +107,5 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <groupId>org.springframework.boot</groupId>
-        </dependency>
-        <dependency>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <groupId>org.springframework.boot</groupId>
-        </dependency>
-        <dependency>
-            <artifactId>postgresql</artifactId>
-            <groupId>org.postgresql</groupId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <artifactId>flyway-core</artifactId>
-            <groupId>org.flywaydb</groupId>
-        </dependency>
-        <dependency>
-            <artifactId>mapstruct</artifactId>
-            <groupId>org.mapstruct</groupId>
-            <version>1.4.2.Final</version>
-        </dependency>
-        <dependency>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <groupId>org.springframework.boot</groupId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <artifactId>lombok</artifactId>
-            <groupId>org.projectlombok</groupId>
-            <optional>true</optional>
-            <version>1.18.12</version>
-        </dependency>
-        <dependency>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <groupId>org.springframework.boot</groupId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <artifactId>h2</artifactId>
-            <groupId>com.h2database</groupId>
-            <scope>runtime</scope>
-        </dependency>
-    </dependencies>
-    <description>Demo project for Spring Boot</description>
-    <groupId>com.example</groupId>
-    <modelVersion>4.0.0</modelVersion>
-    <name>dexie-sync-backend</name>
-    <parent>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <groupId>org.springframework.boot</groupId>
-        <relativePath />
-        <version>2.5.2</version> <!-- lookup parent from repository -->
-    </parent>
-    <properties>
-        <java.version>11</java.version>
-    </properties>
-
-    <version>0.0.1-SNAPSHOT</version>
 
 </project>
