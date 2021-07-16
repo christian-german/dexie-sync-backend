@@ -15,5 +15,5 @@ public class BookEntity extends AbstractSynchronizable {
     private String title;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
-    private AuthorEntity authorEntity;
+    private ApplicationEntity applicationEntity;
 }

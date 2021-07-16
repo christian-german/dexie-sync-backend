@@ -1,14 +1,14 @@
 package com.example.dexiesyncbackend.service.sync;
 
-import com.example.dexiesyncbackend.dto.AuthorDTO;
+import com.example.dexiesyncbackend.dto.ApplicationDTO;
 import com.example.dexiesyncbackend.dto.BookDTO;
 import com.example.dexiesyncbackend.dto.sync.DatabaseChangeDTO;
 import com.example.dexiesyncbackend.dto.sync.SyncResponseDTO;
-import com.example.dexiesyncbackend.entity.AuthorEntity;
+import com.example.dexiesyncbackend.entity.ApplicationEntity;
 import com.example.dexiesyncbackend.entity.BookEntity;
-import com.example.dexiesyncbackend.mapper.AuthorMapper;
+import com.example.dexiesyncbackend.mapper.ApplicationMapper;
 import com.example.dexiesyncbackend.mapper.BookMapper;
-import com.example.dexiesyncbackend.repository.AuthorRepository;
+import com.example.dexiesyncbackend.repository.ApplicationRepository;
 import com.example.dexiesyncbackend.repository.BookRepository;
 import com.example.dexiesyncbackend.repository.SynchronizationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,12 +22,12 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SynchronizationService {
 
-    private final AuthorSyncService authorSyncService;
+    private final ApplicationSyncService applicationSyncService;
     private final BookSyncService bookSyncService;
-    private final AuthorRepository authorRepository;
+    private final ApplicationRepository applicationRepository;
     private final BookRepository bookRepository;
     private final SynchronizationRepository synchronizationRepository;
-    private final AuthorMapper authorMapper;
+    private final ApplicationMapper applicationMapper;
     private final BookMapper bookMapper;
     private final ObjectMapper objectMapper;
     @Value("${synchronization.max-changes}")
@@ -85,17 +85,17 @@ public class SynchronizationService {
         // Each change gets a new revision.
         clientChanges.forEach(databaseChangeDTO -> {
             //TODO: Generify the DB target table.
-            if ("authors".equals(databaseChangeDTO.getTable())) {
+            if ("applications".equals(databaseChangeDTO.getTable())) {
                 switch (databaseChangeDTO.getType()) {
                     case CREATE:
                     case UPDATE:
-                        AuthorDTO authorDTO = objectMapper.convertValue(databaseChangeDTO.getObj(), AuthorDTO.class);
-                        AuthorEntity authorEntity = authorMapper.toEntity(authorDTO);
-                        authorEntity.setUpdatedByClientId(clientIdentity);
-                        authorRepository.save(authorEntity);
+                        ApplicationDTO applicationDTO = objectMapper.convertValue(databaseChangeDTO.getObj(), ApplicationDTO.class);
+                        ApplicationEntity applicationEntity = applicationMapper.toEntity(applicationDTO);
+                        applicationEntity.setUpdatedByClientId(clientIdentity);
+                        applicationRepository.save(applicationEntity);
                         break;
                     case DELETE:
-                        authorRepository.deleteById(UUID.fromString(databaseChangeDTO.getKey()));
+                        applicationRepository.deleteById(UUID.fromString(databaseChangeDTO.getKey()));
                         break;
                 }
             } else if ("books".equals(databaseChangeDTO.getTable())) {
@@ -118,7 +118,7 @@ public class SynchronizationService {
     private List<DatabaseChangeDTO> getServerChanges(Long revisionFrom, Long revisionTo, Long clientIdentity) {
         List<DatabaseChangeDTO> changes = new ArrayList<>();
 
-        changes.addAll(authorSyncService.getAuthorsChanges(revisionFrom, revisionTo, clientIdentity));
+        changes.addAll(applicationSyncService.getAuthorsChanges(revisionFrom, revisionTo, clientIdentity));
         changes.addAll(bookSyncService.getBooksChanges(revisionFrom, revisionTo, clientIdentity));
 
         return changes;

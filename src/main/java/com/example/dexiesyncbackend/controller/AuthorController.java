@@ -1,8 +1,8 @@
 package com.example.dexiesyncbackend.controller;
 
-import com.example.dexiesyncbackend.dto.AuthorDTO;
-import com.example.dexiesyncbackend.mapper.AuthorMapper;
-import com.example.dexiesyncbackend.service.AuthorService;
+import com.example.dexiesyncbackend.dto.ApplicationDTO;
+import com.example.dexiesyncbackend.mapper.ApplicationMapper;
+import com.example.dexiesyncbackend.service.ApplicationService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/authors")
 public class AuthorController {
 
-    private final AuthorService authorService;
-    private final AuthorMapper authorMapper;
+    private final ApplicationService applicationService;
+    private final ApplicationMapper applicationMapper;
 
     @GetMapping
-    public Iterable<AuthorDTO> getAllAuthors() {
-        return authorMapper.toDtos(authorService.findAll());
+    public Iterable<ApplicationDTO> getAllAuthors() {
+        return applicationMapper.toDtos(applicationService.findAll());
     }
 }

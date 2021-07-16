@@ -2,8 +2,7 @@ package com.example.dexiesyncbackend.mapper;
 
 import com.example.dexiesyncbackend.dto.BookDTO;
 import com.example.dexiesyncbackend.entity.BookEntity;
-import com.example.dexiesyncbackend.repository.AuthorRepository;
-import com.example.dexiesyncbackend.repository.BookRepository;
+import com.example.dexiesyncbackend.repository.ApplicationRepository;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,10 +12,10 @@ import java.util.List;
 public abstract class BookMapper {
 
     @Autowired
-    private AuthorRepository authorRepository;
+    private ApplicationRepository applicationRepository;
 
     @Mappings({
-            @Mapping(target = "authorId", source = "authorEntity.id"),
+            @Mapping(target = "authorId", source = "applicationEntity.id"),
     })
     public abstract BookDTO toDto(BookEntity bookEntity);
 
@@ -28,6 +27,6 @@ public abstract class BookMapper {
 
     @BeforeMapping
     protected void enrichEntityWithAuthorEntity(BookDTO bookDTO, @MappingTarget BookEntity bookEntity) {
-        bookEntity.setAuthorEntity(authorRepository.findById(bookDTO.getAuthorId()).get());
+        bookEntity.setApplicationEntity(applicationRepository.findById(bookDTO.getAuthorId()).get());
     }
 }
